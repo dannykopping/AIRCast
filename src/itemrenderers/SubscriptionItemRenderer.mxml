@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark">
+	
+	<s:layout>
+		<s:VerticalLayout gap="0" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4"/>
+	</s:layout>
+	
+	<s:Label text="{title}" fontWeight="bold" width="100%" verticalAlign="middle"/>
+	<s:Label text="{numEpisodes}" fontStyle="italic" width="100%" verticalAlign="middle"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import vo.SubscriptionVO;
+			
+			[Bindable(event="dataChange")]
+			public function get title():String
+			{
+				return this.data.hasOwnProperty("title") ? this.data.title : "";
+			}
+			
+			[Bindable(event="dataChange")]
+			public function get numEpisodes():String
+			{
+				var subscription:SubscriptionVO = this.data as SubscriptionVO;
+				return subscription.episodes.length + " episodes";
+			}
+		]]>
+	</fx:Script>
+	
+</s:ItemRenderer>

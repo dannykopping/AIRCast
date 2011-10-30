@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%"
+		  paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
+		  verticalAlign="middle"
+		  creationComplete="init()">
+	
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="fetching"/>
+		<s:State name="feedDetails"/>
+	</s:states>
+	
+	<s:Form width="100%" excludeFrom="feedDetails">
+		
+		<s:layout>
+			<s:FormLayout gap="-8"/>
+		</s:layout>
+		
+		<s:FormItem label="URL" width="100%">
+			<s:TextInput id="feedURLTxt" width="100%"
+						 text="http://www.nycskeptics.org/storage/feeds/rs.xml"/>
+		</s:FormItem>
+		
+		<s:FormItem width="100%">
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Button label="Load Details" click="getFeed()"
+						  icon="@Embed('assets/icons/subscribe.png')"/>
+				<s:BusyIndicator includeIn="fetching" width="16" height="16"/>
+			</s:HGroup>
+		</s:FormItem>
+		
+	</s:Form>
+	
+	<s:Scroller width="100%" height="100%" includeIn="feedDetails">
+		<s:VGroup width="100%" verticalAlign="middle" clipAndEnableScrolling="true" gap="10">
+			<s:Label text="{subscription.title}" fontWeight="bold" fontSize="12" width="100%"/>
+			
+			<s:RichEditableText id="descriptionTxt" editable="false" fontSize="12"
+						width="100%" selectable="false"
+						paddingLeft="0" paddingRight="0"/>
+		</s:VGroup>
+	</s:Scroller>
+	
+	<s:HGroup width="100%" verticalAlign="middle" includeIn="feedDetails">
+		<s:Button width="150" label="Back" icon="@Embed('assets/icons/left-arrow.png')"
+				  click="this.currentState = 'State1'"/>
+		<s:Spacer width="100%"/>
+		<s:Button width="150" label="Subscribe" icon="@Embed('assets/icons/add.png')"
+				  click="subscribe()"/>
+		
+	</s:HGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import controllers.SubscriptionController;
+			
+			import flashx.textLayout.conversion.TextConverter;
+			
+			import mx.utils.ObjectUtil;
+			
+			import spark.components.supportClasses.StyleableTextField;
+			
+			import util.FeedUtil;
+			
+			import vo.SubscriptionVO;
+			
+			[Bindable]
+			private var subscription:SubscriptionVO;
+			
+			private function init():void
+			{
+				FeedUtil.instance.feedFetched.add(feedFetchHandler);
+			}
+			
+			private function getFeed():void
+			{
+				this.currentState = "fetching";
+				
+				FeedUtil.instance.fetchFeed(feedURLTxt.text);
+			}
+			
+			private function feedFetchHandler(subscription:SubscriptionVO):void
+			{
+				trace(ObjectUtil.toString(subscription));
+				
+				this.currentState = 'feedDetails';
+				
+				this.subscription = subscription;
+				descriptionTxt.textFlow = TextConverter.importToFlow(subscription.description, TextConverter.TEXT_FIELD_HTML_FORMAT);
+			}
+			
+			private function subscribe():void
+			{
+				trace(ObjectUtil.toString(this.subscription));
+				SubscriptionController.instance.subscriptionAdded.dispatch(this.subscription);
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+</s:VGroup>
